@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: aws-cost
+  namespace: demo
+spec:
+  schedule: "0 7 * * *"
+  jobTemplate:
+    spec:
+      backoffLimit: 3  # Retry up to 3 times before failing
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: aws-cost
+              image: aws_cost:v1
+              env:
+                - name: DEV_ACCOUNT_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-cost-secret
+                      key: DEV_ACCOUNT_ACCESS_KEY
+                - name: DEV_ACCOUNT_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-cost-secret
+                      key: DEV_ACCOUNT_SECRET_KEY
+                - name: STAGING_ACCOUNT_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-cost-secret
+                      key: STAGING_ACCOUNT_ACCESS_KEY
+                - name: STAGING_ACCOUNT_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-cost-secret
+                      key: STAGING_ACCOUNT_SECRET_KEY
+                - name: PROD_ACCOUNT_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-cost-secret
+                      key: PROD_ACCOUNT_ACCESS_KEY
+                - name: PROD_ACCOUNT_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-cost-secret
+                      key: PROD_ACCOUNT_SECRET_KEY
+                - name: SLACK_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-cost-secret
+                      key: SLACK_TOKEN
+                - name: SLACK_CHANNEL
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-cost-secret
+                      key: SLACK_CHANNEL
