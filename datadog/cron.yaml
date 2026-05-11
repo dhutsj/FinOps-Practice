@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: datadog-cost
+  namespace: demo
+spec:
+  schedule: "0 8 * * *"
+  jobTemplate:
+    spec:
+      backoffLimit: 3  # Retry up to 3 times before failing
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: datadog-cost
+              image: datadog_cost:v3
+              env:
+                - name: DD_API_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: datadog-cost-secret
+                      key: DD_API_KEY
+                - name: DD_APP_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: datadog-cost-secret
+                      key: DD_APP_KEY
+                - name: SLACK_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: datadog-cost-secret
+                      key: SLACK_TOKEN
+                - name: SLACK_CHANNEL
+                  valueFrom:
+                    secretKeyRef:
+                      name: datadog-cost-secret
+                      key: SLACK_CHANNEL
