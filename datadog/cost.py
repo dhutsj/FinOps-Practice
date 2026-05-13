@@ -93,6 +93,8 @@ slack_response = requests.post(
         "channel": SLACK_CHANNEL,
         "text": f"Datadog Cost Summary — {start_date} to {end_date}: ${mtd_cost:,.2f} | {prev_month}: ${prev_month_cost:,.2f}",
         "blocks": blocks,
+        "username": "Datadog_Billing",
+        "icon_emoji": ":dd_logo_v_white:"
     },
 )
 slack_response.raise_for_status()
