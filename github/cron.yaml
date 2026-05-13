@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: github-action-cost
+  namespace: demo
+spec:
+  schedule: "30 7 * * *"
+  jobTemplate:
+    spec:
+      backoffLimit: 3  # Retry up to 3 times before failing
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: github-action-cost
+              image: github_action_cost:v2
+              env:
+                - name: GITHUB_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: github-action-cost-secret
+                      key: GITHUB_TOKEN
+                - name: SLACK_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: github-action-cost-secret
+                      key: SLACK_TOKEN
+                - name: SLACK_CHANNEL
+                  valueFrom:
+                    secretKeyRef:
+                      name: github-action-cost-secret
+                      key: SLACK_CHANNEL
