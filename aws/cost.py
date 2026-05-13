@@ -109,6 +109,8 @@ def main():
             "channel": SLACK_CHANNEL,
             "text": f"AWS Cost Summary — Last month: ${totals['last_month']:,.2f} | MTD: ${totals['mtd']:,.2f}",
             "blocks": blocks,
+            "username": "AWS_Billing",
+            "icon_emoji": ":aws-dark:"
         },
     )
     slack_response.raise_for_status()
