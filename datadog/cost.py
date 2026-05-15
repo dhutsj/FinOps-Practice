@@ -40,24 +40,31 @@ total_cost = last_entry.get("attributes", {}).get("total_cost", 0.0)
 mtd_cost = round(total_cost, 2)
 print(f"{start_date} to {end_date}: ${mtd_cost}")
 
-# monthly cost
+# monthly cost — use historical_cost for finalized months, fall back to estimated_cost
 prev_month = (now.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
-curr_month = now.strftime("%Y-%m")
-params = {
-    "start_month": prev_month,
-    "end_month": curr_month,
-}
 
-response = requests.get(url, headers=headers, params=params)
-response.raise_for_status()
-
-data = response.json()
+hist_url = "https://api.datadoghq.com/api/v2/usage/historical_cost"
+hist_response = requests.get(
+    hist_url,
+    headers=headers,
+    params={"start_month": prev_month, "view": "summary"},
+)
+hist_response.raise_for_status()
 
 total_cost = 0.0
+for item in hist_response.json().get("data", []):
+    total_cost += item.get("attributes", {}).get("total_cost", 0.0)
 
-for item in data.get("data", []):
-    attributes = item.get("attributes", {})
-    total_cost += attributes.get("total_cost", 0.0)
+if total_cost == 0.0:
+    # historical data not yet available — fall back to estimated_cost
+    est_response = requests.get(
+        url,
+        headers=headers,
+        params={"start_month": prev_month, "end_month": prev_month},
+    )
+    est_response.raise_for_status()
+    for item in est_response.json().get("data", []):
+        total_cost += item.get("attributes", {}).get("total_cost", 0.0)
 
 prev_month_cost = round(total_cost, 2)
 print(f"{prev_month}: ${prev_month_cost}")
